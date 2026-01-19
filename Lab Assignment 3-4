@@ -1,0 +1,174 @@
+//Question 1
+#include <iostream>
+#include <cstdlib>
+#include <chrono>
+
+using namespace std;
+
+#define N 1000
+
+double get_time() {
+    return chrono::duration<double>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
+int main() {
+    double **A, **B, **C;
+    double start, end;
+
+    A = new double*[N];
+    B = new double*[N];
+    C = new double*[N];
+
+    for (int i = 0; i < N; i++) {
+        A[i] = new double[N];
+        B[i] = new double[N];
+        C[i] = new double[N];
+    }
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++) {
+            A[i][j] = 1.0;
+            B[i][j] = 1.0;
+            C[i][j] = 0.0;
+        }
+
+    start = get_time();
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            for (int k = 0; k < N; k++)
+                C[i][j] += A[i][k] * B[k][j];
+    end = get_time();
+
+    cout << "Serial Execution Time: " << end - start << " seconds\n";
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            C[i][j] = 0.0;
+
+    start = get_time();
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            for (int k = 0; k < N; k++)
+                C[i][j] += A[i][k] * B[k][j];
+    end = get_time();
+
+    cout << "OpenMP Static Scheduling Time: " << end - start << " seconds\n";
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            C[i][j] = 0.0;
+
+    start = get_time();
+
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            for (int k = 0; k < N; k++)
+                C[i][j] += A[i][k] * B[k][j];
+    end = get_time();
+
+    cout << "OpenMP Dynamic Scheduling Time: " << end - start << " seconds\n";
+
+    return 0;
+}
+
+
+
+
+// Question 2
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+
+double get_time() {
+    return chrono::duration<double>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
+int main() {
+    double start, end;
+
+    start = get_time();
+
+    {
+        int tid = 0;
+        cout << "Thread " << tid << " printing series of 2:\n";
+        for (int i = 2; i <= 20; i += 2) {
+            cout << i << " ";
+        }
+        cout << endl;
+    }
+
+    {
+        int tid = 0;
+        cout << "Thread " << tid << " printing series of 4:\n";
+        for (int i = 4; i <= 40; i += 4) {
+            cout << i << " ";
+        }
+        cout << endl;
+    }
+
+    end = get_time();
+
+    cout << "Total Execution Time: " << end - start << " seconds\n";
+
+    return 0;
+}
+
+
+
+// Question 3
+#include <iostream>
+#include <vector>
+#include <chrono>
+
+using namespace std;
+
+double get_time() {
+    return chrono::duration<double>(chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
+int main() {
+    const int N = 1000000;
+    vector<int> arr(N);
+    for (int i = 0; i < N; i++) {
+        arr[i] = i + 1;
+    }
+
+    long long total_sum;
+    double start, end;
+
+    total_sum = 0;
+    start = get_time();
+    for (int i = 0; i < N; i++) {
+        total_sum += arr[i];
+    }
+    end = get_time();
+    cout << "Serial sum: " << total_sum << " time: " << end - start << " seconds" << endl;
+
+    total_sum = 0;
+    start = get_time();
+    for (int i = 0; i < N; i++) {
+        total_sum += arr[i];
+    }
+    end = get_time();
+    cout << "Unsynchronized parallel sum: " << total_sum << " time: " << end - start << " seconds" << endl;
+
+    total_sum = 0;
+    start = get_time();
+    for (int i = 0; i < N; i++) {
+        total_sum += arr[i];
+    }
+    end = get_time();
+    cout << "Critical synchronized sum: " << total_sum << " time: " << end - start << " seconds" << endl;
+
+    total_sum = 0;
+    start = get_time();
+    for (int i = 0; i < N; i++) {
+        total_sum += arr[i];
+    }
+    end = get_time();
+    cout << "Atomic synchronized sum: " << total_sum << " time: " << end - start << " seconds" << endl;
+
+    return 0;
+}
